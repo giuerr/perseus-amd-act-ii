@@ -167,6 +167,29 @@ agent-ceiling + recall-under-load metrics, and `vllm bench serve --model
 Qwen/Qwen2.5-72B-Instruct --dataset-name random --random-input-len 1024
 --random-output-len 512 --num-prompts 256 --max-concurrency 64` for the throughput row.
 
+**Environment prerequisites for all GPU reproduce steps (§3a–§3d).** On stock cloud
+GPU images (Ubuntu/Lambda-Stack, RunPod, etc.) the verbatim `pip install
+vllm==0.19.1` + `vllm serve …` sequence fails for two environment reasons unless the
+following are applied first:
+
+1. **Install vLLM into a clean venv — never onto the system interpreter.**
+   Stock images ship a system scipy that still references `numpy.Inf`; installing
+   numpy 2.x over it produces `ImportError: cannot import name 'Inf' from 'numpy'`
+   at vLLM import time. Use `python3 -m venv /root/vllm-venv` (no
+   `--system-site-packages`) so pip resolves a self-consistent
+   numpy/scipy/transformers set, then `source /root/vllm-venv/bin/activate` before
+   every `pip install` / `vllm` / `python3 src/amd_live_benchmark.py` command.
+2. **Keep the venv and the HF model cache on local container disk, not on a
+   mounted network volume.** On RunPod, putting the venv on `/workspace` (the
+   mounted network volume) makes `pip install` fail after tens of minutes with
+   `OSError: [Errno 5] Input/output error` (many small-file writes). Put the venv
+   and `HF_HOME` under `/root` (size the local disk ≥200 GB) and keep the network
+   volume out of the pip/HF cache paths (`export HF_HOME=/root/hf-cache`, and set
+   `TMPDIR=/root/tmp` if pip still touches the volume).
+
+With those two in place, the exact serve/bench commands above reproduce the measured
+rows. The numbers in this section were produced with these workarounds applied.
+
 ### 3a-bis. Independently reconfirmed on a second MI300X — 2026-07-10 — `data_source: measured`
 
 Re-run on a **freshly rented MI300X** (RunPod, vLLM 0.19.1 + ROCm 7.13, host **AMD
