@@ -1,0 +1,26 @@
+{
+  "id": "webdemo",
+  "name": "webdemo",
+  "channels": [
+    "web"
+  ],
+  "mode": "simulator",
+  "env": {
+    "url": "WEBDEMO_URL",
+    "password": "WEBDEMO_PASSWORD"
+  },
+  "userId": "github:266114454",
+  "github": {
+    "repo": "giuerr/perseus-amd-act-ii",
+    "branch": "main",
+    "files": [
+      "webdemo/Dockerfile",
+      "webdemo/app.py",
+      "webdemo/requirements.txt"
+    ],
+    "folder": "webdemo"
+  },
+  "role": "",
+  "color": "#D9D9D9",
+  "ownerName": "Owner"
+}
